@@ -1,24 +1,30 @@
 ﻿using System.Collections.Generic;
 using NetChallenge.Abstractions;
 using NetChallenge.Domain;
+using NetChallenge.Dto.Output;
 
 namespace NetChallenge.Infrastructure
 {
     public class LocationRepository : ILocationRepository
     {
-        public List<Location> Locations { get; set; }
+        public List<Location> _locations { get; set; }
         public LocationRepository()
         {
-            Locations = new List<Location>();
+            _locations = new List<Location>();
         }
         public IEnumerable<Location> AsEnumerable()
         {
-            return this.Locations;
+            return this._locations;
         }
 
         public void Add(Location item)
         { 
-            this.Locations.Add(item);
+            this._locations.Add(item);
+        }
+
+        public IEnumerable<Location> GetLocations()
+        {
+           return _locations;
         }
     }
 }
