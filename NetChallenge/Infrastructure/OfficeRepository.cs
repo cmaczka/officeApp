@@ -32,19 +32,17 @@ namespace NetChallenge.Infrastructure
             List<Office> suggestionsCapacity= new List<Office>();
 
             var response = new List<Office>();
-            //var suggestionsLocation = _offices.Where(o => o.LocationName.Contains(request.PreferedNeigborHood) && request.PreferedNeigborHood!=null).ToList();
             var suggestionsLocation = _offices.Where(o => o.LocationName?.Contains(request.PreferedNeigborHood==null ? "": request.PreferedNeigborHood) ??false).ToList();
-            if (suggestionsLocation!=null)
-                suggestionsCapacity = suggestionsLocation.Where(o => o.MaxCapacity >= request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
+            suggestionsCapacity = suggestionsLocation.Where(o => o.MaxCapacity >= request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
 
             var suggestionsLocationB = _offices.Except(suggestionsLocation).Where(o=>o.MaxCapacity>=request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
 
 
             suggestionsCapacity.AddRange(suggestionsLocationB);
 
-            var r = suggestionsCapacity.Where(p => request.ResourcesNeeded.All(p2 => p2.ToString() == p.AvailableResources.ToString())).OrderBy(p=>p.AvailableResources.Count());
+            var result = suggestionsCapacity.Where(p => request.ResourcesNeeded.All(p2 => p2.ToString() == p.AvailableResources.ToString())).OrderBy(p=>p.AvailableResources.Count());
 
-            return r;
+            return result;
                                     
         }
     }
