@@ -29,48 +29,22 @@ namespace NetChallenge.Infrastructure
 
         public IEnumerable<Office> GetOfficeSuggestions(SuggestionsRequest request)
         {
+            List<Office> suggestionsCapacity= new List<Office>();
 
             var response = new List<Office>();
+            //var suggestionsLocation = _offices.Where(o => o.LocationName.Contains(request.PreferedNeigborHood) && request.PreferedNeigborHood!=null).ToList();
+            var suggestionsLocation = _offices.Where(o => o.LocationName?.Contains(request.PreferedNeigborHood==null ? "": request.PreferedNeigborHood) ??false).ToList();
+            if (suggestionsLocation!=null)
+                suggestionsCapacity = suggestionsLocation.Where(o => o.MaxCapacity >= request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
 
-            var suggestionsLocation = _offices.FindAll(o => o.LocationName.Contains(request.PreferedNeigborHood));
-
-            if (suggestionsLocation == null || !suggestionsLocation.Any())
-            {
-                //search other locations
-                suggestionsLocation = _offices.FindAll(o => o.LocationName != request.PreferedNeigborHood);
-            }
+            var suggestionsLocationB = _offices.Except(suggestionsLocation).Where(o=>o.MaxCapacity>=request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
 
 
+            suggestionsCapacity.AddRange(suggestionsLocationB);
 
-            var suggestionsCapacity = _offices.FindAll(o => o.MaxCapacity == request.CapacityNeeded);
+            var r = suggestionsCapacity.Where(p => request.ResourcesNeeded.All(p2 => p2.ToString() == p.AvailableResources.ToString())).OrderBy(p=>p.AvailableResources.Count());
 
-            if (suggestionsCapacity == null || !suggestionsCapacity.Any())
-            {
-                //search other with bigger capacity
-                suggestionsCapacity = _offices.FindAll(o => o.MaxCapacity > request.CapacityNeeded).
-                                              AsEnumerable().OrderBy(x => x.MaxCapacity - request.CapacityNeeded).
-                                              ToList();
-            }
-
-            var suggestionsResources = _offices.FindAll(o => o.AvailableResources.Count() == 
-                                                        request.ResourcesNeeded.Count());
-
-            if (suggestionsResources == null && !suggestionsResources.Any())
-            {
-                suggestionsResources = _offices.FindAll(o =>
-                                                    o.AvailableResources.Count() >= request.ResourcesNeeded.Count() &&
-                                                    o.AvailableResources.Intersect(request.ResourcesNeeded).Count() ==
-                                                                                   request.ResourcesNeeded.Count()).
-                                            AsEnumerable().OrderBy(x => x.AvailableResources.Count()).
-                                            ToList();
-            }
-                                    
-            
-            var res = response.Union(suggestionsLocation).
-                               Union(response.ToList()).
-                               Union(response.ToList());
-
-            return res;
+            return r;
                                     
         }
     }
