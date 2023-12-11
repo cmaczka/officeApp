@@ -4,6 +4,7 @@ using NetChallenge.Abstractions;
 using NetChallenge.Domain;
 using NetChallenge.Dto.Input;
 using NetChallenge.Dto.Output;
+using NetChallenge.Validations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,39 +16,32 @@ namespace NetChallenge
         private readonly ILocationRepository _locationRepository;
         private readonly IOfficeRepository _officeRepository;
         private readonly IBookingRepository _bookingRepository;
+        private readonly IValidate<BookOfficeRequest> _validateBookOffice;
+        private readonly IValidate<AddLocationRequest> _validateAddLocation;
+        private readonly IValidate<AddOfficeRequest> _validateOffice;
         private readonly IMapper _mapper;
 
 
         public OfficeRentalService(ILocationRepository locationRepository,
                                    IOfficeRepository officeRepository,
-                                   IBookingRepository bookingRepository)
+                                   IBookingRepository bookingRepository,
+                                   IValidate<BookOfficeRequest> validateBookOffice,
+                                   IValidate<AddLocationRequest> validateAddLocation,
+                                   IValidate<AddOfficeRequest> validateOffice)
         {
             _locationRepository = locationRepository;
             _officeRepository = officeRepository;
             _bookingRepository = bookingRepository;
+            _validateBookOffice = validateBookOffice;
+            _validateAddLocation = validateAddLocation;
+            _validateOffice = validateOffice;
             _mapper = Mapper.OfficeRentalMapping.CreateMapper();
         }
 
         public void AddLocation(AddLocationRequest request)
         {
-            var locations = _locationRepository.GetLocations();
-            locations = locations.Where(x => x.Name == request.Name).ToList();
-
-            if (locations != null && locations.Any())
-                throw new Exception("Location already exists");
-
-            if(request.Name == string.Empty)
-                throw new Exception("Name cannot be empty");
-
-            if (request.Name == null)
-                throw new Exception("Name cannot be null");
-
-            if(request.Neighborhood == string.Empty)
-                throw new Exception("Neighborhood cannot be empty");
-
-            if(request.Neighborhood == null)
-                throw new Exception("Neighborhood cannot be null");
-
+           
+            _validateAddLocation.Validate(request);
 
             var location = _mapper.Map<Location>(request);
             _locationRepository.Add(location);
@@ -55,101 +49,18 @@ namespace NetChallenge
 
         public void AddOffice(AddOfficeRequest request)
         {
-            try
-            {
-                var location = _locationRepository.GetLocations().FirstOrDefault(x => x.Name == request.LocationName);
-                if(location == null )
-                    throw new Exception("Location does not exist");
+            
+            _validateOffice.Validate(request);
 
-                if (request.MaxCapacity <= 0)
-                    throw new Exception("MaxCapacity cannot be minor or equal than 0");
-
-                if (request.Name == string.Empty)
-                    throw new Exception("Name cannot be empty");
-
-                if (request.Name == null)
-                    throw new Exception("Name cannot be null");
-
-
-                var offices = _officeRepository.GetOfficesByLocationName(request.LocationName);
-                offices = offices.Where(x => x.Name == request.Name).ToList();
-               
-                if(offices != null && offices.Any())
-                    throw new Exception("Office already exists");
-
-
-                var officesSameLocation = offices.Any(x => x.LocationName == request.LocationName);
-
-
-                var office = _mapper.Map<Office>(request);
-                _officeRepository.Add(office);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var office = _mapper.Map<Office>(request);
+            _officeRepository.Add(office);
+    
         }
 
         public void BookOffice(BookOfficeRequest request)
         {
-
-            var office = _officeRepository.GetOfficesByLocationName(request.LocationName).FirstOrDefault(x => x.Name  == request.OfficeName);
-            
-            if(office == null)
-                throw new Exception("Office does not exist");
-
-
-            if(request.Duration < TimeSpan.Zero)
-                throw new Exception("Duration cannot be minor than 0");
-
-            if (request.Duration == TimeSpan.Zero)
-                throw new Exception("Duration cannot be equal than 0");
-
-            var location = _locationRepository.GetLocations().FirstOrDefault(x => x.Name == request.LocationName);
-            if (location == null)
-                throw new Exception("Location does not exist");
-                
-
-            var overlapingBookings = _bookingRepository.GetBookings(request.LocationName, request.OfficeName).
-                                                        Where(x => x.DateTime < request.DateTime.Add(request.Duration) &&
-                                                              x.DateTime.Add(x.Duration) > request.DateTime);
-
-            if (overlapingBookings.Any())
-                throw new Exception("Office is already booked");
-
-            var overlapingExaclyBookings = _bookingRepository.GetBookings(request.LocationName, request.OfficeName).
-                                                              Where(x => x.DateTime == request.DateTime &&
-                                                                    x.Duration == request.Duration);
-
-            if (overlapingExaclyBookings.Any())
-                throw new Exception("Office is already booked");
-
-            var overlapingInsideBookings = _bookingRepository.GetBookings(request.LocationName, request.OfficeName).
-                                                              Where(x => x.DateTime > request.DateTime &&
-                                                                    x.DateTime.Add(x.Duration) < request.DateTime.Add(request.Duration));
-
-            if (overlapingInsideBookings.Any())
-                throw new Exception("Office is already booked");
-
-            var overlapingOutsideBookings = _bookingRepository.GetBookings(request.LocationName, request.OfficeName).
-                                                               Where(x => x.DateTime < request.DateTime &&
-                                                                     x.DateTime.Add(x.Duration) > request.DateTime.Add(request.Duration));
-
-            var overlapingStartBookings = _bookingRepository.GetBookings(request.LocationName, request.OfficeName).
-                                                                         Where(x => x.DateTime < request.DateTime &&
-                                                                               x.DateTime.Add(x.Duration) > request.DateTime);
-
-            if (overlapingStartBookings.Any())
-                throw new Exception("Office is already booked");
-
-            if(request.UserName == string.Empty)
-                throw new Exception("UserName cannot be empty");
-
-            if(request.UserName == null)
-                throw new Exception("UserName cannot be null");
-
-
-
+            _validateBookOffice.Validate(request);
+           
             var booking = _mapper.Map<Booking>(request);
             _bookingRepository.Add(booking);
         }
