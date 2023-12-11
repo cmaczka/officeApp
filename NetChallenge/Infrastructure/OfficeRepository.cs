@@ -29,9 +29,11 @@ namespace NetChallenge.Infrastructure
 
         public IEnumerable<Office> GetOfficeSuggestions(SuggestionsRequest request)
         {
-           
-            var suggestionsLocation = _offices.Where(o => o.LocationName?.Contains(request.PreferedNeigborHood==null ? "": request.PreferedNeigborHood) ??false).ToList();
-            var suggestionsCapacity = suggestionsLocation.Where(o => o.MaxCapacity >= request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
+            List<Office> suggestionsCapacity= new List<Office>();
+
+            var response = new List<Office>();
+            var suggestionsLocation = _offices.Where(o => o.LocationName?.Contains(request.PreferedNeigborHood==null ? "": request.PreferedNeigborHood) ??false);
+            suggestionsCapacity = suggestionsLocation.Where(o => o.MaxCapacity >= request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
 
             var suggestionsLocationB = _offices.Except(suggestionsLocation).Where(o=>o.MaxCapacity>=request.CapacityNeeded).OrderBy(o=>o.MaxCapacity).ToList();
 
