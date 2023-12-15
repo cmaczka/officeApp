@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NetChallenge.Validations
 {
-    public class ValidateSuggestionRequest : IValidate<SuggestionsRequest>
+    public class ValidateSuggestions : IValidate<SuggestionsRequest>
     {
         public void Validate(SuggestionsRequest request)
         {

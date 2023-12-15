@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NetChallenge.Abstractions;
 using NetChallenge.Domain;
 using NetChallenge.Dto.Output;
@@ -25,6 +26,11 @@ namespace NetChallenge.Infrastructure
         public IEnumerable<Location> GetLocations()
         {
            return _locations;
+        }
+
+        public Location GetLocationByLocationName(string locatioName)
+        {
+           return _locations.FirstOrDefault(x => x.Name == locatioName);
         }
     }
 }
