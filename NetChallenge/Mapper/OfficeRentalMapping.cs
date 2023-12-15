@@ -10,17 +10,15 @@ namespace NetChallenge.Mapper
 {
     public class OfficeRentalMapping : Profile
     {
-        public static IMapper CreateMapper()
+        public OfficeRentalMapping()
         {
-            return new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<AddLocationRequest, Location>();
-                cfg.CreateMap<AddOfficeRequest, Office>();
-                cfg.CreateMap<BookOfficeRequest, Booking>();
-                cfg.CreateMap<Booking, BookingDto>();
-                cfg.CreateMap<Location, LocationDto>();
-                cfg.CreateMap<Office, OfficeDto>();
-            }).CreateMapper();
+            CreateMap<AddLocationRequest, Location>();
+            CreateMap<AddOfficeRequest, Office>();
+            CreateMap<BookOfficeRequest, Booking>();
+            CreateMap<Booking, BookingDto>();
+            CreateMap<Location, LocationDto>();
+            CreateMap<Office, OfficeDto>();
         }
     }
+
 }

@@ -24,13 +24,14 @@ namespace NetChallenge
                                    IOfficeRepository officeRepository,
                                    IBookingRepository bookingRepository,
                                    IValidate<BookOfficeRequest> validateBookOffice,
-                                   IValidate<AddOfficeRequest> validateOffice)
+                                   IValidate<AddOfficeRequest> validateOffice,
+                                   IMapper mapper)
         {
             _officeRepository = officeRepository;
             _bookingRepository = bookingRepository;
             _validateBookOffice = validateBookOffice;
             _validateOffice = validateOffice;
-            _mapper = Mapper.OfficeRentalMapping.CreateMapper();
+            _mapper = mapper;
         }
 
 

@@ -19,11 +19,12 @@ namespace NetChallenge
 
 
         public BookingServices(IBookingRepository bookingRepository,
-                                IValidate<BookOfficeRequest> validateBookOffice)
+                                IValidate<BookOfficeRequest> validateBookOffice,
+                                IMapper mapper)
         {
             _bookingRepository = bookingRepository;
             _validateBookOffice = validateBookOffice;
-            _mapper = Mapper.OfficeRentalMapping.CreateMapper();
+            _mapper = mapper;
         }
 
 

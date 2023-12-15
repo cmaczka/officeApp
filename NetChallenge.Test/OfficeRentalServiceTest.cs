@@ -52,10 +52,12 @@ namespace NetChallenge.Test
                                                 OfficeRepository,
                                                 BookingRepository,
                                                 ValidateBookOffice,
-                                                ValidateAddOffice);
+                                                ValidateAddOffice,
+                                                mapper);
 
             BookingServices = new BookingServices(BookingRepository,
-                                                  ValidateBookOffice);
+                                                  ValidateBookOffice,
+                                                  mapper);
 
             ValidateBookOffice = new ValidateBookOffice(LocationRepository,
                                                         OfficeRepository,       

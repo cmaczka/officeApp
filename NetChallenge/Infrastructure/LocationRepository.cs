@@ -8,19 +8,19 @@ namespace NetChallenge.Infrastructure
 {
     public class LocationRepository : ILocationRepository
     {
-        public List<Location> _locations { get; set; }
+        public static List<Location> _locations { get; set; }
         public LocationRepository()
         {
-            _locations = new List<Location>();
+            _locations ??= new List<Location>();
         }
         public IEnumerable<Location> AsEnumerable()
         {
-            return this._locations;
+            return _locations;
         }
 
         public void Add(Location item)
         { 
-            this._locations.Add(item);
+            _locations.Add(item);
         }
 
         public IEnumerable<Location> GetLocations()
